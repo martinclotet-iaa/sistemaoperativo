@@ -1,0 +1,28 @@
+name: Build ClotetOS ISO
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build ClotetOS ISO
+        run: |
+          mkdir -p output
+          docker build -t clotet-builder .
+          docker run --rm --privileged -v "$(pwd)/output:/output" clotet-builder
+
+      - name: Upload ISO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: clotet-os-iso
+          path: output/clotet-os.iso
+          if-no-files-found: error
+          retention-days: 7
